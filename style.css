@@ -264,7 +264,7 @@ button, input {
 .ledger {
   width: 100%;
   border-collapse: collapse;
-  min-width: 980px;
+  min-width: 1120px;
 }
 
 .ledger thead th {
@@ -379,6 +379,10 @@ tr.state-in { border-left: 3px solid var(--green); }
   justify-content: center;
   z-index: 50;
   padding: 20px;
+}
+
+.modal-overlay[hidden] {
+  display: none;
 }
 
 .modal {

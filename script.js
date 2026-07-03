@@ -3,7 +3,7 @@
 
   const STORAGE_KEY = "stockroom_inventory_v2";
 
-  /** @type {Array<{id:string, description:string, inDate:string, qtyIn:number, outDate:string, qtyOut:number, purchasePrice:number, sellingPrice:number}>} */
+  /** @type {Array<{id:string, description:string, inDate:string, qtyIn:number, partyName:string, outDate:string, qtyOut:number, purchasePrice:number, sellingPrice:number}>} */
   let items = [];
   let activeFilter = "all";
   let searchTerm = "";
@@ -34,10 +34,10 @@
 
   function seedData() {
     return [
-      { id: uid(), description: "Corrugated box — medium", inDate: "2026-06-02", qtyIn: 500, outDate: "2026-06-20", qtyOut: 80, purchasePrice: 12, sellingPrice: 18 },
-      { id: uid(), description: "Cotton yarn — natural, 500g", inDate: "2026-06-05", qtyIn: 60, outDate: "2026-06-28", qtyOut: 60, purchasePrice: 280, sellingPrice: 340 },
-      { id: uid(), description: "Steel bracket — L-type", inDate: "2026-06-10", qtyIn: 300, outDate: "", qtyOut: 0, purchasePrice: 16, sellingPrice: 22 },
-      { id: uid(), description: "Barcode label roll", inDate: "2026-06-15", qtyIn: 40, outDate: "2026-06-30", qtyOut: 35, purchasePrice: 70, sellingPrice: 95 },
+      { id: uid(), description: "Corrugated box — medium", inDate: "2026-06-02", qtyIn: 500, partyName: "Kwality Cartons", outDate: "2026-06-20", qtyOut: 80, purchasePrice: 12, sellingPrice: 18 },
+      { id: uid(), description: "Cotton yarn — natural, 500g", inDate: "2026-06-05", qtyIn: 60, partyName: "Ganga Textiles", outDate: "2026-06-28", qtyOut: 60, purchasePrice: 280, sellingPrice: 340 },
+      { id: uid(), description: "Steel bracket — L-type", inDate: "2026-06-10", qtyIn: 300, partyName: "Metro Hardware", outDate: "", qtyOut: 0, purchasePrice: 16, sellingPrice: 22 },
+      { id: uid(), description: "Barcode label roll", inDate: "2026-06-15", qtyIn: 40, partyName: "PrintFast", outDate: "2026-06-30", qtyOut: 35, purchasePrice: 70, sellingPrice: 95 },
     ];
   }
 
@@ -61,7 +61,9 @@
       if (activeFilter === "out" && itemStatus(item) !== "out") return false;
       if (searchTerm) {
         const q = searchTerm.toLowerCase();
-        if (!item.description.toLowerCase().includes(q)) return false;
+        const matchesDescription = item.description.toLowerCase().includes(q);
+        const matchesParty = (item.partyName || "").toLowerCase().includes(q);
+        if (!matchesDescription && !matchesParty) return false;
       }
       return true;
     });
@@ -121,6 +123,7 @@
         <td class="row-name">${escapeHtml(item.description)}</td>
         <td class="row-date ${item.inDate ? "" : "empty"}">${formatDate(item.inDate)}</td>
         <td class="row-num">${item.qtyIn || 0}</td>
+        <td class="row-name">${item.partyName ? escapeHtml(item.partyName) : '<span class="row-date empty">—</span>'}</td>
         <td class="row-date ${item.outDate ? "" : "empty"}">${formatDate(item.outDate)}</td>
         <td class="row-num">${item.qtyOut || 0}</td>
         <td class="row-num">
@@ -204,6 +207,7 @@
     description: document.getElementById("f-description"),
     inDate: document.getElementById("f-in-date"),
     qtyIn: document.getElementById("f-qty-in"),
+    party: document.getElementById("f-party"),
     outDate: document.getElementById("f-out-date"),
     qtyOut: document.getElementById("f-qty-out"),
     purchasePrice: document.getElementById("f-purchase-price"),
@@ -230,6 +234,7 @@
       modal.description.value = item.description;
       modal.inDate.value = item.inDate || "";
       modal.qtyIn.value = item.qtyIn || 0;
+      modal.party.value = item.partyName || "";
       modal.outDate.value = item.outDate || "";
       modal.qtyOut.value = item.qtyOut || 0;
       modal.purchasePrice.value = item.purchasePrice;
@@ -267,6 +272,7 @@
       description: modal.description.value.trim(),
       inDate: modal.inDate.value,
       qtyIn: Math.max(0, Math.round(Number(modal.qtyIn.value) || 0)),
+      partyName: modal.party.value.trim(),
       outDate: modal.outDate.value,
       qtyOut: Math.max(0, Math.round(Number(modal.qtyOut.value) || 0)),
       purchasePrice: Math.max(0, Number(modal.purchasePrice.value) || 0),
@@ -324,6 +330,7 @@
           description: String(i.description || "Untitled item"),
           inDate: String(i.inDate || ""),
           qtyIn: Number(i.qtyIn) || 0,
+          partyName: String(i.partyName || ""),
           outDate: String(i.outDate || ""),
           qtyOut: Number(i.qtyOut) || 0,
           purchasePrice: Number(i.purchasePrice) || 0,
